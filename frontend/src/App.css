@@ -1,0 +1,105 @@
+/* App-level overrides — premium spacing & global resets */
+
+/* Hide default vite scaffold styles */
+.hero, #center, #next-steps, #spacer, .ticks,
+.counter { all: unset; }
+
+/* Page transition wrapper */
+.page-enter {
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ─── Responsive grid helpers ─── */
+@media (max-width: 1024px) {
+  main { padding: 20px !important; }
+}
+
+@media (max-width: 768px) {
+  aside { width: 72px !important; min-width: 72px !important; }
+  main  { margin-left: 72px !important; }
+}
+
+/* ─── Premium table styles ─── */
+.premium-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+}
+
+.premium-table thead th {
+  text-align: left;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0 14px 8px;
+}
+
+.premium-table tbody tr {
+  background: var(--surface-1);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.premium-table tbody tr:hover {
+  background: var(--surface-2);
+}
+
+.premium-table tbody td {
+  padding: 13px 14px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-1);
+  border-bottom: 1px solid var(--border-1);
+}
+
+.premium-table tbody td:first-child {
+  border-left: 1px solid var(--border-1);
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.premium-table tbody td:last-child {
+  border-right: 1px solid var(--border-1);
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* ─── Form section headers ─── */
+.section-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.section-subheading {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+/* ─── Modal backdrop ─── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-box {
+  background: var(--bg-700);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  width: 100%;
+  max-width: 480px;
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: var(--shadow-lg);
+}

@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dravyaguna Vijñāna - Mutrasangrahaniya Mahakashaya</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Lato:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* BASE STYLES */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Lato', sans-serif;
+            overflow: hidden;
+        }
+
+        /* SLIDE CONTAINER */
+        .presentation-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            /* Hidden by default */
+            width: 1280px;
+            height: 720px;
+            background-color: #F7F5EF;
+            color: #2C3E50;
+            position: relative;
+            flex-direction: column;
+            padding: 60px;
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* BACKGROUND DECORATIONS */
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(45, 90, 39, 0.05) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* TYPOGRAPHY */
+        h1,
+        h2,
+        h3 {
+            font-family: 'Merriweather', serif;
+            color: #2D5A27;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 72px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .slide-title {
+            font-size: 44px;
+            margin-bottom: 40px;
+            border-left: 8px solid #8B4513;
+            padding-left: 20px;
+            z-index: 1;
+        }
+
+        p,
+        li {
+            font-size: 20px;
+            line-height: 1.4;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 28px;
+            color: #8B4513;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        /* LAYOUTS */
+        .content-area {
+            display: flex;
+            flex-grow: 1;
+            gap: 40px;
+            align-items: flex-start;
+            z-index: 1;
+        }
+
+        .text-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .image-side {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-wrapper {
+            width: 100%;
+            height: 380px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 4px solid #fff;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-caption {
+            font-size: 16px;
+            color: #666;
+            font-style: italic;
+            margin-top: 15px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            width: 90%;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .bullet-list li {
+            margin-bottom: 20px;
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .bullet-list li i {
+            position: absolute;
+            left: 0;
+            top: 5px;
+            color: #2D5A27;
+            font-size: 24px;
+        }
+
+        .bullet-list li strong {
+            color: #2D5A27;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 22px;
+        }
+
+        /* NAVIGATION CONTROLS */
+        .nav-controls {
+            position: fixed;
+            bottom: 30px;
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: rgba(45, 90, 39, 0.9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-btn:hover {
+            background: #8B4513;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: #2D5A27;
+        }
+
+        /* TABLES */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: #2D5A27;
+            color: #fff;
+            padding: 15px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* SPECIAL SLIDE STYLES */
+        .title-slide {
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .shloka-box {
+            background: #FFF;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px dashed #8B4513;
+            margin-top: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .shloka-text {
+            font-family: 'Merriweather', serif;
+            font-size: 28px;
+            color: #8B4513;
+            margin-bottom: 10px;
+        }
+
+        .mechanism-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+
+        .mech-step {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            border-bottom: 4px solid #2D5A27;
+            text-align: center;
+        }
+
+        .mech-step i {
+            font-size: 32px;
+            color: #2D5A27;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="presentation-wrapper">
+        <!-- Slide 1 -->
+        <div class="slide active" id="slide1">
+            <div class="title-slide">
+                <h1>Mutrasangrahaniya Mahakashaya</h1>
+                <div class="subtitle">Antidiuretic Herbs in Ayurvedic Medicine</div>
+                <div class="image-wrapper" style="width: 800px; height: 300px;">
+                    <img src="http://googleusercontent.com/image_collection/image_retrieval/7028319313974989307"
+                        alt="Ayurvedic herbs background">
+                </div>
+                <p class="image-caption">Traditional Ayurvedic processing tools and raw medicinal herbs essential for
+                    drug collection (Dravyasangrahana).</p>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide" id="slide2">
+            <h2 class="slide-title">Introduction</h2>
+            <div class="content-area">
+                <div class="text-side">
+                    <ul class="bullet-list">
+                        <li><i class="fa-solid fa-book-open"></i><strong>Dravyaguna Vijñāna</strong>The fundamental
+                            branch of Ayurveda studying medicinal properties and actions of herbs.</li>
+                        <li><i class="fa-solid fa-droplet-slash"></i><strong>Mutrasangrahaniya</strong>A specific group
+                            of herbs that reduce excess urination by restoring fluid balance.</li>
+                        <li><i class="fa-solid fa-leaf"></i><strong>Holistic Importance</strong>Crucial for preserving
+                            vital fluids (Ojas) and preventing metabolic exhaustion.</li>
+                    </ul>
+                </div>
+                <div class="image-side">
+                    <div class="image-wrapper"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/12831642060874196467"
+                            alt="Herbal diversity"></div>
+                    <p class="image-caption">A diverse collection of medicinal plants illustrating the vast botanical
+                        sources in Ayurveda.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide" id="slide3">
+            <h2 class="slide-title">Concept & Function</h2>
+            <div class="content-area">
+                <div class="text-side">
+                    <p><strong>Mutra (Urine) + Sangrahaniya (Retention)</strong></p>
+                    <ul class="bullet-list">
+                        <li><i class="fa-solid fa-gear"></i><strong>Action on Kidneys</strong>These herbs improve the
+                            'Dharana' (retaining) power of the kidneys (Vrikka).</li>
+                        <li><i class="fa-solid fa-compress"></i><strong>Astringent Action</strong>They utilize the
+                            'Stambhana' property to tone the urinary tract.</li>
+                        <li><i class="fa-solid fa-droplet"></i><strong>Excessive Urination</strong>Indicated for
+                            conditions like polyuria and diabetes insipidus.</li>
+                    </ul>
+                </div>
+                <div class="image-side">
+                    <div class="image-wrapper"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/14714426497030178707"
+                            alt="Urinary system"></div>
+                    <p class="image-caption">Detailed diagram of the human urinary system showing where these herbs
+                        exert their physiological influence.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide" id="slide4">
+            <h2 class="slide-title">Classical Reference</h2>
+            <div class="content-area" style="flex-direction: column; align-items: center;">
+                <div class="shloka-box">
+                    <div class="shloka-text">"जम्ब्वम्रप्लक्षवटत कपीतनोदुम्बराश्वत्थ भल्लातकाशमन्तकसोमवल्का इति दशेमानि
+                        मूत्रसंग्रहणीयानि भवन्ति||"</div>
+                    <p><strong>— Charaka Samhita, Sutrasthana, Ch. 4/25</strong></p>
+                </div>
+                <div style="display: flex; gap: 30px; margin-top: 20px; width: 100%;">
+                    <div style="flex: 1.5;">
+                        <p>Maharishi Charaka classifies these 10 drugs under the "Mahakashaya" group for their specific
+                            potency in curbing excessive fluid loss via the urinary system.</p>
+                    </div>
+                    <div class="image-wrapper" style="flex: 1; height: 180px;"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/10089975618986290024"
+                            alt="Ancient manuscript"></div>
+                </div>
+                <p class="image-caption">Ancient Sanskrit palm-leaf manuscripts preserving the wisdom of classical
+                    pharmacology.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide" id="slide5">
+            <h2 class="slide-title">The Ten Drugs Overview</h2>
+            <div class="content-area">
+                <div class="text-side">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Drug Name</th>
+                                <th>Botanical Identity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1. Jambu</td>
+                                <td>Syzygium cumini</td>
+                            </tr>
+                            <tr>
+                                <td>2. Amra</td>
+                                <td>Mangifera indica</td>
+                            </tr>
+                            <tr>
+                                <td>3. Plaksha</td>
+                                <td>Ficus virens</td>
+                            </tr>
+                            <tr>
+                                <td>4. Vata</td>
+                                <td>Ficus bengalensis</td>
+                            </tr>
+                            <tr>
+                                <td>5. Kapitana</td>
+                                <td>Albizia lebbeck</td>
+                            </tr>
+                            <tr>
+                                <td>6. Udumbara</td>
+                                <td>Ficus racemosa</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="image-side">
+                    <div class="image-wrapper"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/7517870655171712653"
+                            alt="Drug collage"></div>
+                    <p class="image-caption">A collage showcasing the variety of tree barks and fruits that form this
+                        Mahakashaya.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide" id="slide6">
+            <h2 class="slide-title">1. Jambu (Syzygium cumini)</h2>
+            <div class="content-area">
+                <div class="text-side">
+                    <ul class="bullet-list">
+                        <li><strong>Properties:</strong> Rasa: Kashaya; Virya: Sheeta; Vipaka: Katu.</li>
+                        <li><strong>Action:</strong> Potent antidiabetic (Prameha-hara) activity.</li>
+                        <li><strong>Effect:</strong> Seed powder reduces urinary volume and glucose levels.</li>
+                    </ul>
+                </div>
+                <div class="image-side">
+                    <div class="image-wrapper"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/11159596456943515086"
+                            alt="Jamun fruit"></div>
+                    <p class="image-caption">The Jambu fruit and seeds are essential for balancing the 'Dravatva'
+                        (liquid quality) of Kapha.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide" id="slide7">
+            <h2 class="slide-title">2. Amra (Mangifera indica)</h2>
+            <div class="content-area">
+                <div class="text-side">
+                    <ul class="bullet-list">
+                        <li><strong>Properties:</strong> Bark and seed kernel are strongly Kashaya (astringent).</li>
+                        <li><strong>Action:</strong> Checks fluid secretions via the 'Grahi' property.</li>
+                        <li><strong>Use:</strong> Effective in stopping the excessive flow of fluids from the body.</li>
+                    </ul>
+                </div>
+                <div class="image-side">
+                    <div class="image-wrapper"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/15683004674471934657"
+                            alt="Mango tree"></div>
+                    <p class="image-caption">The mango tree's astringent parts are utilized for their high tannin
+                        content to restrict urine flow.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 -->
+        <div class="slide" id="slide8">
+            <h2 class="slide-title">3. Plaksha (Ficus virens)</h2>
+            <div class="content-area">
+                <div class="text-side">
+                    <ul class="bullet-list">
+                        <li><strong>Properties:</strong> Sheeta Potency, balances Pitta-Kapha.</li>
+                        <li><strong>Action:</strong> Clears 'Kleda' (excess moisture) from the body.</li>
+                        <li><strong>Mechanism:</strong> Tightens the urinary channels to prevent frequent voiding.</li>
+                    </ul>
+                </div>
+                <div class="image-side">
+                    <div class="image-wrapper"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/11811238231244407083"
+                            alt="Plaksha tree"></div>
+                    <p class="image-caption">Plaksha bark decoction is highly regarded for its structural toning effect
+                        on urinary tissues.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide" id="slide9">
+            <h2 class="slide-title">4. Vata (Ficus bengalensis)</h2>
+            <div class="content-area">
+                <div class="text-side">
+                    <ul class="bullet-list">
+                        <li><strong>Properties:</strong> Heavy, dry, and cool (Guru, Ruksha, Sheeta).</li>
+                        <li><strong>Action:</strong> Stambhana (Blocking) of abnormal discharges.</li>
+                        <li><strong>Benefit:</strong> Strengthens the bladder sphincters and reduces frequency.</li>
+                    </ul>
+                </div>
+                <div class="image-side">
+                    <div class="image-wrapper"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/1481436128969882098"
+                            alt="Banyan tree"></div>
+                    <p class="image-caption">The Banyan tree's aerial roots and bark provide potent astringency to
+                        manage urinary disorders.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide" id="slide10">
+            <h2 class="slide-title">5. Kapitana (Albizia lebbeck)</h2>
+            <div class="content-area">
+                <div class="text-side">
+                    <ul class="bullet-list">
+                        <li><strong>Properties:</strong> Light and dry in nature; checks Kapha.</li>
+                        <li><strong>Role:</strong> Acts as a detoxifier and fluid regulator.</li>
+                        <li><strong>Application:</strong> Used in chronic conditions where urine consistency is
+                            abnormal.</li>
+                    </ul>
+                </div>
+                <div class="image-side">
+                    <div class="image-wrapper"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/656041212011986329"
+                            alt="Albizia"></div>
+                    <p class="image-caption">Kapitana's bark helps in managing the toxic accumulation in the urinary
+                        system that leads to polyuria.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide" id="slide11">
+            <h2 class="slide-title">Additional Drugs</h2>
+            <div class="content-area">
+                <div class="text-side">
+                    <ul class="bullet-list">
+                        <li><strong>Udumbara:</strong> Cools excess heat in the urinary tract.</li>
+                        <li><strong>Ashwattha:</strong> Tones the bladder and calms Vata.</li>
+                        <li><strong>Bhallataka:</strong> Used in minimal doses for nervous control.</li>
+                        <li><strong>Somavalka:</strong> Highly astringent, checks secretions.</li>
+                    </ul>
+                </div>
+                <div class="image-side">
+                    <div class="image-wrapper"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/4428263802255624536"
+                            alt="Tree bark collage"></div>
+                    <p class="image-caption">A collection of medicinal barks commonly used in 'Mutrasangrahaniya'
+                        decoctions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12 -->
+        <div class="slide" id="slide12">
+            <h2 class="slide-title">Mechanism of Action</h2>
+            <div class="content-area" style="flex-direction: column;">
+                <div class="mechanism-grid">
+                    <div class="mech-step">
+                        <i class="fa-solid fa-scale-unbalanced"></i>
+                        <h3>Astringent Power</h3>
+                        <p>Contraction of urinary tract tissues.</p>
+                    </div>
+                    <div class="mech-step">
+                        <i class="fa-solid fa-droplet"></i>
+                        <h3>Kleda absorption</h3>
+                        <p>Drying up of excess waste moisture.</p>
+                    </div>
+                    <div class="mech-step">
+                        <i class="fa-solid fa-shield-heart"></i>
+                        <h3>Tissue Toning</h3>
+                        <p>Strengthening the sphincters.</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; margin-top: 30px; gap: 30px;">
+                    <div class="image-wrapper" style="flex: 1; height: 180px;"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/17900980511590214018"
+                            alt="Diagram showing reduced flow"></div>
+                    <p style="flex: 2;">By combining Kashaya (astringent) rasa and Sheeta (cool) virya, these herbs
+                        effectively slow down the excessive formation and flow of urine.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide" id="slide13">
+            <h2 class="slide-title">Clinical Uses</h2>
+            <div class="content-area">
+                <div class="text-side">
+                    <ul class="bullet-list">
+                        <li><i class="fa-solid fa-house-medical"></i><strong>Prameha:</strong> Reducing the frequency
+                            and turbidity of urine.</li>
+                        <li><i class="fa-solid fa-child-reaching"></i><strong>Bed Wetting:</strong> Helping children
+                            gain better bladder control.</li>
+                        <li><i class="fa-solid fa-heart-pulse"></i><strong>Dehydration:</strong> Preventing fluid loss
+                            in metabolic disorders.</li>
+                    </ul>
+                </div>
+                <div class="image-side">
+                    <div class="image-wrapper"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/5065251048119809177"
+                            alt="Medical illustration"></div>
+                    <p class="image-caption">Modern clinical application involves using these herbs as adjuvants in
+                        managing polyuric conditions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide" id="slide14">
+            <h2 class="slide-title">Modern Correlation</h2>
+            <div class="content-area">
+                <div class="text-side">
+                    <ul class="bullet-list">
+                        <li><strong>Antidiuretic Analogy:</strong> These herbs act similarly to modern vasopressin
+                            (ADH).</li>
+                        <li><strong>Tannin Therapy:</strong> Modern science confirms tannins cause tissue contraction.
+                        </li>
+                        <li><strong>Safety Profile:</strong> Natural herbs provide a milder, holistic alternative
+                            without severe side effects.</li>
+                    </ul>
+                </div>
+                <div class="image-side">
+                    <div class="image-wrapper"><img
+                            src="http://googleusercontent.com/image_collection/image_retrieval/7724167430857269935"
+                            alt="Kidney medicine comparison"></div>
+                    <p class="image-caption">Comparison between Ayurvedic 'Stambhana' action and modern antidiuretic
+                        pharmacology.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide" id="slide15">
+            <h2 class="slide-title">Conclusion</h2>
+            <div class="content-area"
+                style="flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                <p style="font-size: 28px; margin-bottom: 30px;"><strong>Key Takeaways:</strong></p>
+                <ul class="bullet-list" style="max-width: 800px; text-align: left;">
+                    <li>The Mutrasangrahaniya Mahakashaya is a time-tested formula for fluid balance.</li>
+                    <li>It emphasizes the use of astringent, cool, and dry properties to tone the kidneys.</li>
+                    <li>Highly effective in early-stage Diabetes (Prameha) management.</li>
+                </ul>
+                <div class="image-wrapper" style="width: 600px; height: 200px; margin-top: 30px;">
+                    <img src="http://googleusercontent.com/image_collection/image_retrieval/5249223896579981780"
+                        alt="Ayurvedic herbs conclusion">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16 -->
+        <div class="slide" id="slide16">
+            <h2 class="slide-title">References</h2>
+            <div class="content-area" style="flex-direction: column; align-items: center; justify-content: center;">
+                <ul class="bullet-list" style="font-size: 24px;">
+                    <li><i class="fa-solid fa-book"></i>Charaka Samhita, Sutrasthana, Chapter 4.</li>
+                    <li><i class="fa-solid fa-book"></i>Dravyaguna Vijñāna by Prof. P.V. Sharma.</li>
+                    <li><i class="fa-solid fa-book"></i>Illustrated Dravyaguna by Dr. J.L.N. Sastry.</li>
+                </ul>
+                <div style="margin-top: 50px; font-style: italic; color: #8B4513; font-size: 28px;">
+                    End of Presentation
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Overlay -->
+        <div class="nav-controls">
+            <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)"><i class="fa-solid fa-chevron-left"></i>
+                Previous</button>
+            <div class="slide-counter"><span id="currentNum">1</span> / 16</div>
+            <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next <i
+                    class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 16;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            if (n > totalSlides) currentSlide = 1;
+            if (n < 1) currentSlide = totalSlides;
+
+            slides.forEach(slide => slide.classList.remove('active'));
+            document.getElementById('slide' + currentSlide).classList.add('active');
+
+            document.getElementById('currentNum').innerText = currentSlide;
+
+            // Disable/Enable buttons
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+        });
+
+        // Initialize
+        window.onload = () => {
+            showSlide(currentSlide);
+        };
+    </script>
+
+</body>
+
+</html>
