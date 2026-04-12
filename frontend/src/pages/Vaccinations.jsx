@@ -30,7 +30,7 @@ export default function Vaccinations() {
 
   const fetchVaccinations = async () => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_BASE}/api/vaccinations/${user.id || `64c67f4c5e3d7b0012c8a9f0'}`);
+      const { data } = await axios.get(`${import.meta.env.VITE_API_BASE}/api/vaccinations/${user.id || '64c67f4c5e3d7b0012c8a9f0'}`);
       setVaccinations(data);
     } catch { /* keep empty */ }
     finally { setLoading(false); }
