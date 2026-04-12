@@ -3,8 +3,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
-const xss = require('xss-clean');
-const mongoSanitize = require('express-mongo-sanitize');
+// express-mongo-sanitize & xss-clean are incompatible with Express 5 (req.query is read-only).
+// Using inline body-only sanitizers instead.
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const logger = require('./src/utils/logger');
@@ -17,20 +17,20 @@ const app = express();
 // Trust reverse proxy (for Render/Vercel/HTTPS setups)
 app.set('trust proxy', 1);
 
-// ─── CORS: allow both localhost AND network IP ───────────────────────────────
-const allowedOrigins = [
-    'http://localhost:5173',
-    'http://10.194.13.217:5173',
-    // Add more origins here if needed (e.g. other devices)
+// ─── CORS: allow localhost, network IP, and nip.io (any port) ────────────────
+const allowedOriginPatterns = [
+    /^http:\/\/localhost(:\d+)?$/,                    // localhost on any port
+    /^http:\/\/10\.194\.13\.217(:\d+)?$/,             // direct network IP on any port
+    /^http:\/\/10\.194\.13\.217\.nip\.io(:\d+)?$/,    // nip.io domain (for Google OAuth)
+    /^https:\/\/vet-iota-silk\.vercel\.app$/,          // production Vercel URL
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (mobile apps, curl, Postman)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
-            return callback(null, true);
-        }
+        const allowed = allowedOriginPatterns.some(pattern => pattern.test(origin));
+        if (allowed) return callback(null, true);
         console.warn(`[CORS] Blocked origin: ${origin}`);
         return callback(new Error(`CORS policy: origin ${origin} not allowed`));
     },
@@ -47,11 +47,41 @@ app.use(helmet());
 app.use(express.json({ limit: '10kb' })); // Limit body payload
 app.use(cookieParser()); // Parse cookies (for HttpOnly JWT)
 
-// 3. Data Sanitization against NoSQL Query Injection
-app.use(mongoSanitize());
+// 3. Data Sanitization against NoSQL Query Injection (Express-5-safe, body-only)
+app.use((req, res, next) => {
+    const sanitize = (obj) => {
+        if (obj && typeof obj === 'object') {
+            for (const key of Object.keys(obj)) {
+                if (key.startsWith('$') || key.includes('.')) {
+                    delete obj[key];
+                } else {
+                    sanitize(obj[key]);
+                }
+            }
+        }
+    };
+    if (req.body) sanitize(req.body);
+    next();
+});
 
-// 4. Data Sanitization against XSS
-app.use(xss());
+// 4. Data Sanitization against XSS (Express-5-safe, body-only)
+app.use((req, res, next) => {
+    const escapeHtml = (str) =>
+        typeof str === 'string'
+            ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                 .replace(/"/g, '&quot;').replace(/'/g, '&#x27;')
+            : str;
+    const sanitizeXss = (obj) => {
+        if (obj && typeof obj === 'object') {
+            for (const key of Object.keys(obj)) {
+                if (typeof obj[key] === 'string') obj[key] = escapeHtml(obj[key]);
+                else sanitizeXss(obj[key]);
+            }
+        }
+    };
+    if (req.body) sanitizeXss(req.body);
+    next();
+});
 
 // 5. Global Rate Limiter (100 req per hour per IP)
 const limiter = rateLimit({
