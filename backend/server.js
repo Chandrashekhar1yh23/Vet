@@ -2,15 +2,73 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const mongoSanitize = require('express-mongo-sanitize');
+const cookieParser = require('cookie-parser');
+const rateLimit = require('express-rate-limit');
+const logger = require('./src/utils/logger');
 
 // Load env vars
 dotenv.config();
 
 const app = express();
 
-// Body parser & CORS
-app.use(express.json());
-app.use(cors());
+// Trust reverse proxy (for Render/Vercel/HTTPS setups)
+app.set('trust proxy', 1);
+
+// ─── CORS: allow both localhost AND network IP ───────────────────────────────
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://10.194.13.217:5173',
+    // Add more origins here if needed (e.g. other devices)
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        console.warn(`[CORS] Blocked origin: ${origin}`);
+        return callback(new Error(`CORS policy: origin ${origin} not allowed`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// ─── Middleware Stack (Enterprise B2B Security) ────────────────────────────
+// 1. Set Security HTTP Headers
+app.use(helmet());
+
+// 2. Body Parser
+app.use(express.json({ limit: '10kb' })); // Limit body payload
+app.use(cookieParser()); // Parse cookies (for HttpOnly JWT)
+
+// 3. Data Sanitization against NoSQL Query Injection
+app.use(mongoSanitize());
+
+// 4. Data Sanitization against XSS
+app.use(xss());
+
+// 5. Global Rate Limiter (100 req per hour per IP)
+const limiter = rateLimit({
+    max: 1000,
+    windowMs: 60 * 60 * 1000,
+    message: 'Too many requests from this IP, please try again in an hour!'
+});
+app.use('/api', limiter);
+
+// ─── Request origin logger (via structured logger) ───────────────────────────
+app.use((req, res, next) => {
+    const origin = req.headers.origin || req.ip || 'unknown';
+    if (req.path.startsWith('/api/auth')) {
+        logger.info(`${req.method} ${req.path} — origin: ${origin}`);
+    }
+    next();
+});
 
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -21,18 +79,20 @@ app.get('/', (req, res) => {
 });
 
 // Import Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/ai', require('./routes/ai'));
-app.use('/api/vaccinations', require('./routes/vaccinations'));
-app.use('/api/animals', require('./routes/animals'));
-app.use('/api/clinics', require('./routes/clinics'));
-app.use('/api/doctors', require('./routes/doctors'));
-app.use('/api/consultations', require('./routes/consultations'));
+app.use('/api/auth', require('./src/routes/auth'));
+app.use('/api/ai', require('./src/routes/ai'));
+app.use('/api/animals', require('./src/routes/animals'));
+app.use('/api/appointments', require('./src/routes/appointments'));
+app.use('/api/vaccinations', require('./src/routes/vaccinations'));
+app.use('/api/clinics', require('./src/routes/clinics'));
+app.use('/api/doctors', require('./src/routes/doctors'));
+app.use('/api/consultations', require('./src/routes/consultations'));
+app.use('/api/users', require('./src/routes/users'));
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/animalcare';
 
-const User = require('./models/User');
+const User = require('./src/models/User');
 const bcrypt = require('bcryptjs');
 
 const startServer = async () => {
@@ -65,7 +125,7 @@ const startServer = async () => {
             console.log('Users seeded successfully');
         }
 
-        const Doctor = require('./models/Doctor');
+        const Doctor = require('./src/models/Doctor');
         const doctorCount = await Doctor.countDocuments();
         if (doctorCount === 0) {
             console.log('Seeding initial doctor profiles...');
@@ -90,8 +150,16 @@ const startServer = async () => {
         console.error('Failed to auto-seed', e);
     }
 
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+    // Centralized Error Handling - Must be loaded last
+    const errorHandler = require('./src/middlewares/errorHandler');
+    app.use(errorHandler);
+
+    // Bind to 0.0.0.0 so the server accepts connections from all network interfaces
+    // (not just localhost). Without this, other devices on the network can't reach the backend.
+    app.listen(PORT, '0.0.0.0', () => {
+        logger.info(`Server running on http://0.0.0.0:${PORT}`);
+        logger.info(`Local:   http://localhost:${PORT}`);
+        logger.info(`Network: http://10.194.13.217:${PORT}`);
     });
 };
 

@@ -14,10 +14,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    organizationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Organization',
+        required: true
+    },
     role: {
         type: String,
-        enum: ['Owner', 'Vet', 'Admin'],
-        default: 'Owner',
+        enum: ['ADMIN', 'VET', 'STAFF', 'Owner'], // Keeping Owner temporarily for local seeded data to avoid crashing
+        default: 'ADMIN',
     },
     login_type: {
         type: String,

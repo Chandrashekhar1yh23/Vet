@@ -1,7 +1,14 @@
 require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const User = require('../models/User');
+const User = require('../src/models/User');
+const Animal = require('../src/models/Animal');
+const Appointment = require('../src/models/Appointment');
+const Vaccination = require('../src/models/Vaccination');
+const MedicalRecord = require('../src/models/MedicalRecord');
+const Consultation = require('../src/models/Consultation');
+const Doctor = require('../src/models/Doctor');
+const Organization = require('../src/models/Organization');
 
 const seedDB = async () => {
     try {

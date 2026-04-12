@@ -10,11 +10,12 @@ import FarmAnimals from './pages/FarmAnimals';
 import ImageDetection from './pages/ImageDetection';
 import Doctors from './pages/Doctors';
 import Consultations from './pages/Consultations';
+import TeamManagement from './pages/TeamManagement';
 
 // Dummy protection for now. We will replace with real context if needed, or simple localStorage check.
 const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/auth" />;
+  const user = localStorage.getItem('user');
+  return user ? children : <Navigate to="/auth" />;
 };
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
           <Route path="locator" element={<VetLocator />} />
           <Route path="doctors" element={<Doctors />} />
           <Route path="consultations" element={<Consultations />} />
+          <Route path="team" element={<TeamManagement />} />
         </Route>
       </Routes>
     </Router>

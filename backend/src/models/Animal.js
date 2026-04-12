@@ -6,6 +6,7 @@ const animalSchema = new mongoose.Schema({
     breed: { type: String },
     age: { type: Number },
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
     isFarmAnimal: { type: Boolean, default: false },
     milkProduction: { type: Number, default: 0 }, // For cows etc (Liters/day)
     createdAt: { type: Date, default: Date.now }

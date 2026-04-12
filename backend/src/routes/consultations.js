@@ -3,13 +3,15 @@ const router = express.Router();
 const Consultation = require('../models/Consultation');
 const multer = require('multer');
 
+const auth = require('../middlewares/authMiddleware');
+
 // Simple multer setup for handling binary uploads in memory (for mocking processing)
 const upload = multer({ storage: multer.memoryStorage() });
 
-// GET all consultations for a user
-router.get('/:userId', async (req, res) => {
+// GET all consultations for an organization
+router.get('/', auth, async (req, res) => {
     try {
-        const history = await Consultation.find({ userId: req.params.userId }).populate('doctorId', 'name specialization');
+        const history = await Consultation.find({ organizationId: req.user.organizationId }).populate('doctorId', 'name specialization');
         res.json(history);
     } catch (err) {
         console.error(err);
@@ -18,9 +20,9 @@ router.get('/:userId', async (req, res) => {
 });
 
 // POST to create a new consultation (with optional file upload)
-router.post('/', upload.array('images', 3), async (req, res) => {
+router.post('/', auth, upload.array('images', 3), async (req, res) => {
     try {
-        const { userId, doctorId, petName, symptoms } = req.body;
+        const { doctorId, petName, symptoms } = req.body;
         
         // Mock image paths based on uploaded files
         let uploadedImages = [];
@@ -29,7 +31,8 @@ router.post('/', upload.array('images', 3), async (req, res) => {
         }
 
         const consult = new Consultation({
-            userId,
+            userId: req.user.userId,
+            organizationId: req.user.organizationId,
             doctorId: doctorId || null,
             petName,
             symptoms,

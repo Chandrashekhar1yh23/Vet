@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Stethoscope, Syringe, MapPin, Tractor,
   Image as ImageIcon, LogOut, HeartPulse, FileText,
-  ChevronLeft, ChevronRight, Zap
+  ChevronLeft, ChevronRight, Zap, Users
 } from 'lucide-react';
 
 export default function Layout() {
@@ -26,6 +26,7 @@ export default function Layout() {
     { path: '/vaccinations',  icon: <Syringe size={20}/>,         label: 'Vaccinations',   badge: null },
     { path: '/farm',          icon: <Tractor size={20}/>,         label: 'Farm Management',badge: null },
     { path: '/locator',       icon: <MapPin size={20}/>,          label: 'Emergency Vet',  badge: null },
+    ...(user.role === 'ADMIN' ? [{ path: '/team', icon: <Users size={20}/>, label: 'Team Management', badge: null }] : []),
   ];
 
   const sidebarW = collapsed ? '72px' : '260px';

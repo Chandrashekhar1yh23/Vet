@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Vaccination = require('../models/Vaccination');
 
-// Get all vaccinations for the logged-in user
-router.get('/:userId', async (req, res) => {
+const auth = require('../middlewares/authMiddleware');
+
+// Get all vaccinations for the organization
+router.get('/', auth, async (req, res) => {
     try {
-        const vaccinations = await Vaccination.find({ userId: req.params.userId }).sort({ dueDate: 1 });
+        const vaccinations = await Vaccination.find({ organizationId: req.user.organizationId }).sort({ dueDate: 1 });
         res.json(vaccinations);
     } catch (err) {
         console.error(err);
@@ -14,12 +16,13 @@ router.get('/:userId', async (req, res) => {
 });
 
 // Add Vaccination Record
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     try {
-        const { userId, animalName, vaccineName, dueDate, status } = req.body;
+        const { animalName, vaccineName, dueDate, status } = req.body;
         
         const newVaccination = new Vaccination({ 
-            userId, 
+            userId: req.user.userId, 
+            organizationId: req.user.organizationId,
             animalName, 
             vaccineName, 
             dueDate,
@@ -35,7 +38,7 @@ router.post('/', async (req, res) => {
 });
 
 // Mark Vaccination as Completed
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     try {
         const record = await Vaccination.findByIdAndUpdate(
             req.params.id, 

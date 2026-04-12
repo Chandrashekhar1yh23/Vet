@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Doctor = require('../models/Doctor');
+const auth = require('../middlewares/authMiddleware');
 
-// GET all doctors
-router.get('/', async (req, res) => {
+// GET all doctors for organization
+router.get('/', auth, async (req, res) => {
     try {
-        const doctors = await Doctor.find().populate('userId', 'name email');
+        const doctors = await Doctor.find({ organizationId: req.user.organizationId }).populate('userId', 'name email');
         res.json(doctors);
     } catch (err) {
         console.error(err);
@@ -14,9 +15,9 @@ router.get('/', async (req, res) => {
 });
 
 // GET profile by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
     try {
-        const doctor = await Doctor.findById(req.params.id).populate('userId', 'name email');
+        const doctor = await Doctor.findOne({ _id: req.params.id, organizationId: req.user.organizationId }).populate('userId', 'name email');
         if (!doctor) return res.status(404).json({ message: 'Doctor not found' });
         res.json(doctor);
     } catch (err) {
@@ -40,7 +41,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // POST new doctor
-router.post('/', upload.single('profilePhotoFile'), async (req, res) => {
+router.post('/', auth, upload.single('profilePhotoFile'), async (req, res) => {
     try {
         // Extract basic fields
         const { userId, name, specialization, experience, qualification, clinicLocation, contactPhone, contactEmail, availableHours } = req.body;
@@ -53,7 +54,8 @@ router.post('/', upload.single('profilePhotoFile'), async (req, res) => {
         }
 
         const doctor = new Doctor({
-            userId,
+            userId: userId || req.user.userId,
+            organizationId: req.user.organizationId,
             name,
             specialization,
             experience,
@@ -74,14 +76,14 @@ router.post('/', upload.single('profilePhotoFile'), async (req, res) => {
 });
 
 // POST book appointment
-router.post('/book', async (req, res) => {
+router.post('/book', auth, async (req, res) => {
     try {
-        const { userId, doctorId, appointmentDate } = req.body;
+        const { doctorId, appointmentDate } = req.body;
         
         // Find user & doctor
         const User = require('../models/User'); // Mongoose model for User
-        const user = await User.findById(userId);
-        const doctor = await Doctor.findById(doctorId);
+        const user = await User.findById(req.user.userId);
+        const doctor = await Doctor.findOne({ _id: doctorId, organizationId: req.user.organizationId });
 
         if (!user || !doctor) return res.status(404).json({ message: 'User or Doctor not found' });
 
@@ -116,10 +118,10 @@ router.post('/book', async (req, res) => {
 });
 
 // DELETE doctor profile
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     try {
-        const deletedDoctor = await Doctor.findByIdAndDelete(req.params.id);
-        if (!deletedDoctor) return res.status(404).json({ message: 'Doctor not found' });
+        const deletedDoctor = await Doctor.findOneAndDelete({ _id: req.params.id, organizationId: req.user.organizationId });
+        if (!deletedDoctor) return res.status(404).json({ message: 'Doctor not found or unauthorized' });
         
         // Also fire off a console response
         console.log(`Deleted Doctor Profile: ${deletedDoctor.name}`);

@@ -141,11 +141,12 @@ export default function Dashboard() {
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   const quickActions = [
-    { label: 'Book Appointment', icon: '📅', path: '/doctors',    color: 'var(--brand-500)',   bg: 'rgba(34,197,94,0.08)'  },
-    { label: 'Add New Animal',   icon: '🐾', path: '/farm',       color: 'var(--accent-500)',  bg: 'rgba(6,182,212,0.08)'  },
-    { label: 'AI Symptom Check', icon: '⚡', path: '/ai-checker', color: 'var(--purple-500)',  bg: 'rgba(168,85,247,0.08)' },
-    { label: 'Emergency Vet',    icon: '🚑', path: '/locator',    color: '#ef4444',            bg: 'rgba(239,68,68,0.08)'  },
-  ];
+    { label: 'Book Appointment', icon: '📅', path: '/doctors',    color: 'var(--brand-500)',   bg: 'rgba(34,197,94,0.08)', roles: ['ADMIN', 'VET', 'STAFF'] },
+    { label: 'Add New Animal',   icon: '🐾', path: '/farm',       color: 'var(--accent-500)',  bg: 'rgba(6,182,212,0.08)', roles: ['ADMIN', 'STAFF'] },
+    { label: 'AI Symptom Check', icon: '⚡', path: '/ai-checker', color: 'var(--purple-500)',  bg: 'rgba(168,85,247,0.08)', roles: ['ADMIN', 'VET'] },
+    { label: 'Team Management',  icon: '👥', path: '/team',       color: '#3b82f6',            bg: 'rgba(59,130,246,0.08)', roles: ['ADMIN'] },
+    { label: 'Emergency Vet',    icon: '🚑', path: '/locator',    color: '#ef4444',            bg: 'rgba(239,68,68,0.08)', roles: ['ADMIN', 'VET', 'STAFF'] },
+  ].filter(action => action.roles.includes(user.role || 'ADMIN'));
 
   const fees = [
     { disease: 'Normal Checkup',       fee: '₹300',  color: '#4ade80', bg: 'rgba(74,222,128,0.08)',  icon: '🩺' },
@@ -182,10 +183,16 @@ export default function Dashboard() {
 
       {/* ── Stat Cards ── */}
       <div className="stagger-children" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '28px' }}>
-        <StatCard title="Total Animals"     value={4}  icon={<Activity size={20}/>}    color="#22c55e" gradient="linear-gradient(135deg,#22c55e,#16a34a)" change={12}  delay={0.0} />
-        <StatCard title="Upcoming Vaccines" value={2}  icon={<ShieldAlert size={20}/>} color="#f59e0b" gradient="linear-gradient(135deg,#f59e0b,#d97706)" change={0}   delay={0.08}/>
+        {(user.role === 'ADMIN' || user.role === 'STAFF') && (
+            <StatCard title="Total Animals"     value={4}  icon={<Activity size={20}/>}    color="#22c55e" gradient="linear-gradient(135deg,#22c55e,#16a34a)" change={12}  delay={0.0} />
+        )}
+        {(user.role === 'ADMIN' || user.role === 'VET') && (
+            <StatCard title="Upcoming Vaccines" value={2}  icon={<ShieldAlert size={20}/>} color="#f59e0b" gradient="linear-gradient(135deg,#f59e0b,#d97706)" change={0}   delay={0.08}/>
+        )}
         <StatCard title="Appointments"      value={1}  icon={<Calendar size={20}/>}    color="#3b82f6" gradient="linear-gradient(135deg,#3b82f6,#2563eb)" change={-5}  delay={0.16}/>
-        <StatCard title="Active Alerts"     value={0}  icon={<Bell size={20}/>}        color="#ef4444" gradient="linear-gradient(135deg,#ef4444,#dc2626)" change={null} delay={0.24}/>
+        {user.role === 'ADMIN' && (
+            <StatCard title="Active Alerts"     value={0}  icon={<Bell size={20}/>}        color="#ef4444" gradient="linear-gradient(135deg,#ef4444,#dc2626)" change={null} delay={0.24}/>
+        )}
       </div>
 
       {/* ── Main grid ── */}
@@ -208,28 +215,30 @@ export default function Dashboard() {
           </div>
 
           {/* Consultation Fee Chart */}
-          <div className="glass-panel animate-fade-in-up" style={{ padding: '24px', animationDelay: '0.25s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
-              <div style={{
-                width: '36px', height: '36px', borderRadius: '10px',
-                background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 8px 20px rgba(168,85,247,0.3)',
-              }}>
-                <DollarSign size={18} color="white" />
+          {(user.role === 'ADMIN' || user.role === 'VET') && (
+            <div className="glass-panel animate-fade-in-up" style={{ padding: '24px', animationDelay: '0.25s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
+                <div style={{
+                  width: '36px', height: '36px', borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 8px 20px rgba(168,85,247,0.3)',
+                }}>
+                  <DollarSign size={18} color="white" />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Consultation Fee Chart</h3>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>Standard pricing guide</p>
+                </div>
               </div>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Consultation Fee Chart</h3>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>Standard pricing guide</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {fees.map(f => <FeeRow key={f.disease} {...f} />)}
               </div>
+              <p style={{ margin: '14px 0 0', fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <ShieldAlert size={12}/> Fees may vary based on doctor and clinic location.
+              </p>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {fees.map(f => <FeeRow key={f.disease} {...f} />)}
-            </div>
-            <p style={{ margin: '14px 0 0', fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ShieldAlert size={12}/> Fees may vary based on doctor and clinic location.
-            </p>
-          </div>
+          )}
         </div>
 
         {/* RIGHT COLUMN */}
@@ -273,51 +282,55 @@ export default function Dashboard() {
           </div>
 
           {/* AI Tip Card */}
-          <div className="animate-fade-in-up" style={{
-            padding: '20px',
-            borderRadius: '16px',
-            background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(6,182,212,0.1))',
-            border: '1px solid rgba(168,85,247,0.2)',
-            animationDelay: '0.3s',
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
-            <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '100px', height: '100px', borderRadius: '50%', background: 'var(--purple-500)', filter: 'blur(40px)', opacity: 0.15 }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-              <Zap size={16} className="animate-float" style={{ color: 'var(--purple-400)' }} />
-              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--purple-400)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>AI Tip of the Day</span>
+          {(user.role === 'ADMIN' || user.role === 'VET') && (
+            <div className="animate-fade-in-up" style={{
+              padding: '20px',
+              borderRadius: '16px',
+              background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(6,182,212,0.1))',
+              border: '1px solid rgba(168,85,247,0.2)',
+              animationDelay: '0.3s',
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '100px', height: '100px', borderRadius: '50%', background: 'var(--purple-500)', filter: 'blur(40px)', opacity: 0.15 }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                <Zap size={16} className="animate-float" style={{ color: 'var(--purple-400)' }} />
+                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--purple-400)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>AI Tip of the Day</span>
+              </div>
+              <p style={{ margin: '0 0 12px', fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                Seasonal allergies peak in March–May. Schedule dermatology checkups now to reduce emergency visits by <strong style={{ color: 'var(--brand-400)' }}>40%</strong>.
+              </p>
+              <button
+                onClick={() => navigate('/ai-checker')}
+                style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.3)', borderRadius: '8px', padding: '7px 14px', color: 'var(--purple-400)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                Run AI Check <ArrowUpRight size={13}/>
+              </button>
             </div>
-            <p style={{ margin: '0 0 12px', fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              Seasonal allergies peak in March–May. Schedule dermatology checkups now to reduce emergency visits by <strong style={{ color: 'var(--brand-400)' }}>40%</strong>.
-            </p>
-            <button
-              onClick={() => navigate('/ai-checker')}
-              style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.3)', borderRadius: '8px', padding: '7px 14px', color: 'var(--purple-400)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}
-            >
-              Run AI Check <ArrowUpRight size={13}/>
-            </button>
-          </div>
+          )}
 
           {/* System status */}
-          <div className="glass-panel animate-fade-in-up" style={{ padding: '18px', animationDelay: '0.35s' }}>
-            <h4 style={{ margin: '0 0 12px', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>System Status</h4>
-            {[
-              { label: 'API Server',    status: 'online' },
-              { label: 'AI Engine',     status: 'online' },
-              { label: 'Database',      status: 'online' },
-              { label: 'Email Service', status: 'warning' },
-            ].map(s => (
-              <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{s.label}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span className={`status-dot ${s.status}`} />
-                  <span style={{ fontSize: '0.75rem', color: s.status === 'online' ? 'var(--brand-400)' : 'var(--warning)', fontWeight: 500 }}>
-                    {s.status === 'online' ? 'Operational' : 'Degraded'}
-                  </span>
+          {user.role === 'ADMIN' && (
+            <div className="glass-panel animate-fade-in-up" style={{ padding: '18px', animationDelay: '0.35s' }}>
+              <h4 style={{ margin: '0 0 12px', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>System Status</h4>
+              {[
+                { label: 'API Server',    status: 'online' },
+                { label: 'AI Engine',     status: 'online' },
+                { label: 'Database',      status: 'online' },
+                { label: 'Email Service', status: 'warning' },
+              ].map(s => (
+                <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{s.label}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span className={`status-dot ${s.status}`} />
+                    <span style={{ fontSize: '0.75rem', color: s.status === 'online' ? 'var(--brand-400)' : 'var(--warning)', fontWeight: 500 }}>
+                      {s.status === 'online' ? 'Operational' : 'Degraded'}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>

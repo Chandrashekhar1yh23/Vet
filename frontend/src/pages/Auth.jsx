@@ -132,7 +132,8 @@ export default function Auth() {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [name, setName]         = useState('');
-  const [role, setRole]         = useState('Owner');
+  const [clinicName, setClinicName] = useState('');
+  const [clinicPhone, setClinicPhone] = useState('');
   const [showPass, setShowPass] = useState(false);
 
   // OTP fields
@@ -176,7 +177,7 @@ export default function Auth() {
     setLoading(true);
     try {
       const isLogin = tab === 'login';
-      const payload = isLogin ? { email, password } : { name, email, password, role };
+      const payload = isLogin ? { email, password } : { name, email, password, clinicName, clinicPhone };
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const { data } = await axios.post(`${import.meta.env.VITE_API_BASE}${endpoint}`, payload);
       if (isLogin) {
@@ -483,21 +484,22 @@ export default function Auth() {
               </form>
             )}
 
-            {/* ════ REGISTER TAB ════ */}
+            {/* ════ CREATE CLINIC (REGISTER) TAB ════ */}
             {tab === 'register' && (
               <form onSubmit={handleClassicSubmit}>
                 <div className="input-group">
-                  <label><User size={14}/> Full Name</label>
+                  <label><User size={14}/> Admin Full Name</label>
                   <input className="input-control" type="text" placeholder="John Doe" value={name} onChange={e => setName(e.target.value)} required />
                 </div>
                 <div className="input-group">
-                  <label><ShieldCheck size={14}/> Role</label>
-                  <select className="input-control" value={role} onChange={e => setRole(e.target.value)}>
-                    <option value="Owner">🐾 Pet / Farm Owner</option>
-                    <option value="Vet">👨‍⚕️ Veterinarian</option>
-                    <option value="Admin">🔐 Administrator</option>
-                  </select>
+                  <label><ShieldCheck size={14}/> Clinic / Organization Name</label>
+                  <input className="input-control" type="text" placeholder="Happy Paws Vet" value={clinicName} onChange={e => setClinicName(e.target.value)} required />
                 </div>
+                <div className="input-group">
+                  <label><ShieldCheck size={14}/> Clinic Phone</label>
+                  <input className="input-control" type="text" placeholder="+1 234 567 890" value={clinicPhone} onChange={e => setClinicPhone(e.target.value)} required />
+                </div>
+
                 <div className="input-group">
                   <label><Mail size={14}/> Email</label>
                   <input className="input-control" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
@@ -510,7 +512,7 @@ export default function Auth() {
                   </button>
                 </div>
                 <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '13px', fontSize: '0.95rem' }} disabled={loading}>
-                  {loading ? <Loader2 size={18} style={{ animation: 'spin-slow 1s linear infinite' }}/> : <>Create Account <ArrowRight size={16}/></>}
+                  {loading ? <Loader2 size={18} style={{ animation: 'spin-slow 1s linear infinite' }}/> : <>Create Clinic Account <ArrowRight size={16}/></>}
                 </button>
               </form>
             )}

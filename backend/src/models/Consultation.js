@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const ConsultationSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
     doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' },
     petName: { type: String, required: true },
     date: { type: Date, default: Date.now },

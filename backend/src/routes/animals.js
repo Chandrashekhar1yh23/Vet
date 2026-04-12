@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const Animal = require('../models/Animal');
-const auth = require('../middleware/authMiddleware');
+const auth = require('../middlewares/authMiddleware');
+const logAction = require('../utils/auditLogger');
 
-// Get all animals for user
+// Get all animals for the organization
 router.get('/', auth, async (req, res) => {
     try {
-        const animals = await Animal.find({ ownerId: req.user.userId });
+        const animals = await Animal.find({ organizationId: req.user.organizationId });
         res.json(animals);
     } catch (err) {
-        res.status(500).send('Server Error');
+        next(err);
     }
 });
 
@@ -20,13 +21,17 @@ router.post('/', auth, async (req, res) => {
         const newAnimal = new Animal({
             name, species, breed, age,
             ownerId: req.user.userId,
+            organizationId: req.user.organizationId,
             isFarmAnimal: isFarmAnimal || false,
             milkProduction: milkProduction || 0
         });
         const saved = await newAnimal.save();
+        
+        logAction(req.user.userId, req.user.organizationId, 'CREATE', 'ANIMAL', saved._id);
+        
         res.json(saved);
     } catch (err) {
-        res.status(500).send('Server Error');
+        next(err);
     }
 });
 
