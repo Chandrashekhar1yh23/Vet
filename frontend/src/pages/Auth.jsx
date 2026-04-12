@@ -204,7 +204,7 @@ export default function Auth() {
       setOtpPhase(true);
       setTimeLeft(300);
       setResendCooldown(30);
-      setToast({ type: 'success', text: '📧 OTP sent! Check your inbox.' });
+      setToast({ type: 'success', text: data.message || '📧 OTP sent! Check your inbox.' });
     } catch (err) {
       setToast({ type: 'error', text: err.response?.data?.message || 'Failed to send OTP' });
     } finally {

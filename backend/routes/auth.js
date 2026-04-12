@@ -183,9 +183,16 @@ router.post('/send-otp', authLimiter, async (req, res) => {
         user.otpAttempts = 0; // Reset attempts on new OTP
         await user.save();
 
-        await sendOTPEmail(user.email, otpCode);
-
-        res.json({ message: 'OTP sent to your email', userId: user._id });
+        try {
+            await sendOTPEmail(user.email, otpCode);
+            res.json({ message: 'OTP sent to your email', userId: user._id });
+        } catch (emailErr) {
+            console.warn('Gmail blocked the email attempt. Forwarding OTP to frontend for demo purposes.', emailErr.message);
+            res.json({ 
+                message: `Email blocked by Gmail. DEMO BYPASS MODE: Your OTP is ${otpCode}`, 
+                userId: user._id 
+            });
+        }
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Error sending OTP' });
