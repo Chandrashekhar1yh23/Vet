@@ -52,7 +52,8 @@ router.get('/verify-email/:token', async (req, res) => {
         user.verificationToken = undefined;
         await user.save();
 
-        res.redirect('http://localhost:5173/auth?verified=true');
+        const frontendUrl = process.env.FRONTEND_URL || 'https://vet-iota-silk.vercel.app';
+        res.redirect(`${frontendUrl}/auth?verified=true`);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
