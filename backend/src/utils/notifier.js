@@ -29,7 +29,8 @@ const createTransporter = () => {
 
 const sendVerificationEmail = async (userEmail, token) => {
     const transporter = createTransporter();
-    const verificationUrl = `http://localhost:5000/api/auth/verify-email/${token}`;
+    const apiBase = process.env.API_URL || 'http://localhost:5000';
+    const verificationUrl = `${apiBase}/api/auth/verify-email/${token}`;
     
     const info = await transporter.sendMail({
         from: '"VetSense AI Security" <security@vetsense.ai>',

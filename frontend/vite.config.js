@@ -6,6 +6,13 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,   // Bind to 0.0.0.0 — enables the Network: URL for other devices
-    port: 5173,
+    port: 5174,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   }
 })

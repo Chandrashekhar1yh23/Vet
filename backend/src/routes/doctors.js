@@ -48,7 +48,8 @@ router.post('/', auth, upload.single('profilePhotoFile'), async (req, res) => {
         
         let profileUrl = 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=250&auto=format&fit=crop';
         if (req.file) {
-            profileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+            const apiBase = process.env.API_URL || 'http://localhost:5000';
+            profileUrl = `${apiBase}/uploads/${req.file.filename}`;
         } else if (req.body.profilePhoto) {
             profileUrl = req.body.profilePhoto;
         }

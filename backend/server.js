@@ -17,11 +17,11 @@ const app = express();
 // Trust reverse proxy (for Render/Vercel/HTTPS setups)
 app.set('trust proxy', 1);
 
-// ─── CORS: allow localhost, network IP, and nip.io (any port) ────────────────
+// ─── CORS: allow localhost, any local IP, and nip.io (any port) ───────────────
 const allowedOriginPatterns = [
     /^http:\/\/localhost(:\d+)?$/,                    // localhost on any port
-    /^http:\/\/10\.194\.13\.217(:\d+)?$/,             // direct network IP on any port
-    /^http:\/\/10\.194\.13\.217\.nip\.io(:\d+)?$/,    // nip.io domain (for Google OAuth)
+    /^http:\/\/(10|192|172)\.\d+\.\d+\.\d+(:\d+)?$/, // any local network IP on any port
+    /\.nip\.io(:\d+)?$/,                             // any nip.io domain
     /^https:\/\/vet-iota-silk\.vercel\.app$/,          // production Vercel URL
 ];
 
@@ -30,7 +30,10 @@ app.use(cors({
         // Allow requests with no origin (mobile apps, curl, Postman)
         if (!origin) return callback(null, true);
         const allowed = allowedOriginPatterns.some(pattern => pattern.test(origin));
-        if (allowed) return callback(null, true);
+        if (allowed) {
+            console.log(`[CORS] Allowed origin: ${origin}`);
+            return callback(null, true);
+        }
         console.warn(`[CORS] Blocked origin: ${origin}`);
         return callback(new Error(`CORS policy: origin ${origin} not allowed`));
     },
@@ -69,7 +72,7 @@ app.use((req, res, next) => {
     const escapeHtml = (str) =>
         typeof str === 'string'
             ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                 .replace(/"/g, '&quot;').replace(/'/g, '&#x27;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#x27;')
             : str;
     const sanitizeXss = (obj) => {
         if (obj && typeof obj === 'object') {
@@ -189,7 +192,7 @@ const startServer = async () => {
     app.listen(PORT, '0.0.0.0', () => {
         logger.info(`Server running on http://0.0.0.0:${PORT}`);
         logger.info(`Local:   http://localhost:${PORT}`);
-        logger.info(`Network: http://10.194.13.217:${PORT}`);
+        logger.info(`Network: http://10.149.84.217:${PORT}`);
     });
 };
 

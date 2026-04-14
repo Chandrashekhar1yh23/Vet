@@ -1,21 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { GoogleLogin } from '@react-oauth/google';
 import {
   PawPrint, Mail, Lock, User, ShieldCheck,
   ArrowRight, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle
 } from 'lucide-react';
 
-/* ─── Google Icon SVG ─── */
-const GoogleIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24">
-    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-  </svg>
-);
+
 
 /* ─── Floating animated particles ─── */
 const FloatingParticles = () => (
@@ -92,41 +83,15 @@ const Toast = ({ message, type, onClose }) => {
   );
 };
 
-/* ─── OTP dots display ─── */
-const OTPDots = ({ filledCount }) => (
-  <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', margin: '0.5rem 0 1.5rem' }}>
-    {[...Array(6)].map((_, i) => (
-      <div key={i} style={{
-        width: '12px', height: '12px', borderRadius: '50%',
-        background: i < filledCount ? 'var(--brand-400)' : 'var(--surface-2)',
-        border: `1px solid ${i < filledCount ? 'var(--brand-400)' : 'var(--border-2)'}`,
-        transition: 'all 0.2s cubic-bezier(0.34,1.56,0.64,1)',
-        transform: i < filledCount ? 'scale(1.2)' : 'scale(1)',
-        boxShadow: i < filledCount ? '0 0 10px var(--brand-glow-hard)' : 'none',
-      }} />
-    ))}
-  </div>
-);
+
 
 /* ════════════════════════════════════════════════════
    MAIN AUTH COMPONENT
 ═══════════════════════════════════════════════════════ */
 export default function Auth() {
-  const [tab, setTab] = useState('login'); // 'login' | 'register' | 'otp'
-  const [otpPhase, setOtpPhase] = useState(false); // within 'otp' tab: false=send, true=verify
-  const [timeLeft, setTimeLeft] = useState(300);
-  const [resendCooldown, setResendCooldown] = useState(30);
+  const [tab, setTab] = useState('login'); // 'login' | 'register'
 
-  useEffect(() => {
-    let timer;
-    if (otpPhase && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
-        setResendCooldown(prev => (prev > 0 ? prev - 1 : 0));
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [otpPhase, timeLeft]);
+
 
   // Classic login fields
   const [email, setEmail]       = useState('');
@@ -136,10 +101,7 @@ export default function Auth() {
   const [clinicPhone, setClinicPhone] = useState('');
   const [showPass, setShowPass] = useState(false);
 
-  // OTP fields
-  const [otpEmail, setOtpEmail] = useState('');
-  const [otpCode, setOtpCode]   = useState('');
-  const [userId, setUserId]     = useState(null);
+
 
   const [loading, setLoading]   = useState(false);
   const [toast, setToast]       = useState(null);
@@ -152,24 +114,6 @@ export default function Auth() {
   useEffect(() => {
     if (isVerified) setToast({ type: 'success', text: '✅ Email verified! You can now sign in.' });
   }, [isVerified]);
-
-  // Google OAuth is now handled via @react-oauth/google component
-
-  const handleGoogleCallback = async (response) => {
-    setLoading(true);
-    try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API_BASE}/api/auth/google-login`, {
-        credential: response.credential,
-      });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/');
-    } catch (err) {
-      setToast({ type: 'error', text: err.response?.data?.message || 'Google login failed' });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // ── Classic email/password ──
   const handleClassicSubmit = async (e) => {
@@ -185,7 +129,7 @@ export default function Auth() {
         localStorage.setItem('user', JSON.stringify(data.user));
         navigate('/');
       } else {
-        setToast({ type: 'success', text: '🎉 Account created! Please sign in.' });
+        setToast({ type: 'success', text: 'Account created! Please check your email to verify.' });
         setTab('login');
       }
     } catch (err) {
@@ -195,45 +139,10 @@ export default function Auth() {
     }
   };
 
-  // ── Send OTP ──
-  const handleSendOTP = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    setLoading(true);
-    try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API_BASE}/api/auth/send-otp`, { email: otpEmail });
-      setUserId(data.userId);
-      setOtpPhase(true);
-      setTimeLeft(300);
-      setResendCooldown(30);
-      setToast({ type: 'success', text: data.message || '📧 OTP sent! Check your inbox.' });
-    } catch (err) {
-      setToast({ type: 'error', text: err.response?.data?.message || 'Failed to send OTP' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ── Verify OTP ──
-  const handleVerifyOTP = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API_BASE}/api/auth/verify-otp`, { userId, otpCode });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/');
-    } catch (err) {
-      setToast({ type: 'error', text: err.response?.data?.message || 'Invalid or expired OTP' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   /* ── Tab config ── */
   const tabs = [
     { id: 'login',    label: 'Sign In' },
     { id: 'register', label: 'Sign Up' },
-    { id: 'otp',      label: 'OTP Login' },
   ];
 
   return (
@@ -347,14 +256,10 @@ export default function Auth() {
             {/* Heading */}
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
               <h2 style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-                {tab === 'otp' && otpPhase ? 'Enter Your OTP' :
-                 tab === 'otp' ? 'OTP Login' :
-                 tab === 'login' ? 'Welcome back' : 'Create account'}
+                {tab === 'login' ? 'Welcome back' : 'Create account'}
               </h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '6px' }}>
-                {tab === 'otp' && otpPhase ? 'Check your email for the 6-digit code' :
-                 tab === 'otp' ? 'Sign in securely with a one-time password' :
-                 tab === 'login' ? 'Sign in to your VetSense dashboard' : 'Join thousands of vets & pet owners'}
+                {tab === 'login' ? 'Sign in to your VetSense dashboard' : 'Join thousands of vets & pet owners'}
               </p>
             </div>
 
@@ -370,7 +275,7 @@ export default function Auth() {
               {tabs.map(t => (
                 <button
                   key={t.id}
-                  onClick={() => { setTab(t.id); setOtpPhase(false); }}
+                  onClick={() => { setTab(t.id); }}
                   style={{
                     flex: 1,
                     padding: '8px',
@@ -389,80 +294,6 @@ export default function Auth() {
                 </button>
               ))}
             </div>
-
-            {/* ── Google OAuth Button ── */}
-            <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'center' }}>
-              <GoogleLogin
-                onSuccess={handleGoogleCallback}
-                onError={() => setToast({ type: 'error', text: 'Google Login Failed' })}
-                useOneTap
-              />
-            </div>
-
-            {/* OR Divider */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem' }}>
-              <div style={{ flex: 1, height: '1px', background: 'var(--border-1)' }} />
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500 }}>or</span>
-              <div style={{ flex: 1, height: '1px', background: 'var(--border-1)' }} />
-            </div>
-
-            {/* ════ OTP TAB ════ */}
-            {tab === 'otp' && !otpPhase && (
-              <form onSubmit={handleSendOTP}>
-                <div className="input-group">
-                  <label><Mail size={14}/> Email Address</label>
-                  <input
-                    className="input-control"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={otpEmail}
-                    onChange={e => setOtpEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '13px', fontSize: '0.95rem', marginTop: '0.5rem' }} disabled={loading}>
-                  {loading ? <Loader2 size={18} style={{ animation: 'spin-slow 1s linear infinite' }}/> : <><Mail size={16}/> Send OTP</>}
-                </button>
-              </form>
-            )}
-
-            {tab === 'otp' && otpPhase && (
-              <form onSubmit={handleVerifyOTP}>
-                <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                    Code sent to <strong style={{ color: 'var(--brand-400)' }}>{otpEmail}</strong>
-                  </p>
-                  <p style={{ color: timeLeft <= 60 ? '#ef4444' : 'var(--text-muted)', fontSize: '0.8rem', marginTop: '4px', fontWeight: 600 }}>
-                    Expires in: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-                  </p>
-                </div>
-                <OTPDots filledCount={otpCode.length} />
-                <div className="input-group">
-                  <label><ShieldCheck size={14}/> 6-Digit OTP</label>
-                  <input
-                    className="input-control"
-                    type="text"
-                    maxLength={6}
-                    placeholder="······"
-                    value={otpCode}
-                    onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                    style={{ textAlign: 'center', fontSize: '1.3rem', letterSpacing: '0.5em', fontWeight: 700 }}
-                    required
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '13px', fontSize: '0.95rem', marginTop: '0.5rem' }} disabled={loading || otpCode.length < 6 || timeLeft === 0}>
-                  {loading ? <Loader2 size={18} style={{ animation: 'spin-slow 1s linear infinite' }}/> : <><ShieldCheck size={16}/> {timeLeft === 0 ? 'OTP Expired' : 'Verify & Sign In'}</>}
-                </button>
-                <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-                    <button type="button" onClick={handleSendOTP} disabled={resendCooldown > 0 || loading} style={{ flex: 1, padding: '10px', background: 'var(--surface-2)', border: '1px solid var(--border-2)', borderRadius: '8px', color: resendCooldown > 0 ? 'var(--text-muted)' : 'var(--text-primary)', cursor: resendCooldown > 0 ? 'not-allowed' : 'pointer', fontSize: '0.82rem', fontWeight: 500, transition: 'all 0.2s' }}>
-                    {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend OTP'}
-                    </button>
-                    <button type="button" onClick={() => { setOtpPhase(false); setOtpCode(''); }} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border-2)', borderRadius: '8px', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 500, transition: 'all 0.2s' }}>
-                    Change Email
-                    </button>
-                </div>
-              </form>
-            )}
 
             {/* ════ LOGIN TAB ════ */}
             {tab === 'login' && (
