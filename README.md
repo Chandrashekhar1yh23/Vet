@@ -1,6 +1,6 @@
 # AnimalCare Hub 🐾
 
-![AnimalCare Hub Hero](file:///C:/Users/Chandrashekhar/.gemini/antigravity/brain/a3bd5b06-2ad6-4916-8d8d-f6e91620ca5e/animalcare_hub_hero_1776150880535.png)
+![AnimalCare Hub Hero](assets/hero-image.png)
 
 A vibrant, modern full-stack web application designed for pet owners, farmers, and veterinary professionals to seamlessly manage animal healthcare.
 
