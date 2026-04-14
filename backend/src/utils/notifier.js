@@ -5,7 +5,9 @@ const createTransporter = () => {
     // Determine whether to use real SMTP or fallback to Ethereal/Console if missing credentials
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
         return nodemailer.createTransport({
-            service: 'gmail', // Standardized to Gmail per user requirements
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false, // true for 465, false for other ports
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
