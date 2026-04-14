@@ -54,7 +54,7 @@ npm run dev         # Runs on http://localhost:5174
 ```
 
 ---
-⚙️ 7. Full-Stack Integration
+**⚙️ 7. Full-Stack Integration**
 
 You connected everything end-to-end.
 
@@ -63,7 +63,7 @@ Backend (Node.js + Express)
 Database interactions
 API communication
 
-8. Authentication Systems (OAuth + OTP)
+**8. Authentication Systems (OAuth + OTP)**
 
 You handled complex login systems.
 
