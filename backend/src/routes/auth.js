@@ -73,9 +73,16 @@ router.post('/register', authLimiter, async (req, res) => {
         });
 
         await user.save();
-        await sendVerificationEmail(user.email, verificationToken);
+        
+        // Send email in background - Do NOT 'await' here so the user gets an instant response
+        sendVerificationEmail(user.email, verificationToken).catch(err => {
+            console.warn('Background mailer failed (likely Render blockade):', err.message);
+        });
 
-        res.status(201).json({ message: 'Registration successful! Please check your email to verify your account.' });
+        res.status(201).json({ 
+            message: 'Registration successful! Your account is ready. (Email verification sent in background)',
+            debug_info: 'If you do not see the email, you can still log in using the OTP method.'
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server Error' });
