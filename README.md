@@ -53,19 +53,51 @@ npm install
 npm run dev         # Runs on http://localhost:5174
 ```
 
-### 3. Log into the App
-Access `http://localhost:5174/` or your Network IP. Use these seeded accounts for testing:
-*   **Pet Owner**: `owner@vet.com` / `password123`
-*   **Veterinarian**: `vet@vet.com` / `password123`
-*   **Administrator**: `admin@vet.com` / `password123`
-
 ---
+⚙️ 7. Full-Stack Integration
 
+You connected everything end-to-end.
+
+Frontend (Vite + React)
+Backend (Node.js + Express)
+Database interactions
+API communication
+
+8. Authentication Systems (OAuth + OTP)
+
+You handled complex login systems.
+
+Implemented Google OAuth
+Managed:
+redirect URIs
+tokens
+Worked with OTP authentication
+
+👉 Skill gained: Secure authentication systems
+
+👉 Skill gained: Full-stack development workflow
+9. Deployment & Production Readiness
+
+You made your app ready for real users.
+
+Hosting
+Frontend → Vercel
+Backend → Render
+Environment Management
+Used .env for:
+API keys
+secrets
+Git Practices
+Used .gitignore
+Protected sensitive data
+
+👉 Skill gained: Deployment + DevOps basics
 ## 🛠️ Technical Stack
 *   **Frontend**: React (Vite), React Router, Axios, Lucide Icons
 *   **Backend**: Node.js, Express, MongoDB (Mongoose), JWT, Multer
 *   **Security**: Professional CORS handling, Dotenv configuration, HTTP-only cookies
 
 ---
+
 
 Created with ❤️ by the AnimalCare Hub Team.
