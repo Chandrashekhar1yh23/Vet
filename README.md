@@ -97,7 +97,4 @@ Protected sensitive data
 *   **Backend**: Node.js, Express, MongoDB (Mongoose), JWT, Multer
 *   **Security**: Professional CORS handling, Dotenv configuration, HTTP-only cookies
 
----
-
-
-Created with ❤️ by the AnimalCare Hub Team.
+--any suggestion need to change in the project feel free to suggest 
