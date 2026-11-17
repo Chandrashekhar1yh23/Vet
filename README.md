@@ -72,10 +72,9 @@ Managed:
 redirect URIs
 tokens
 Worked with OTP authentication
+Skill gained: Secure authentication systems
 
-👉 Skill gained: Secure authentication systems
-
-👉 Skill gained: Full-stack development workflow
+ Skill gained: Full-stack development workflow
 9. Deployment & Production Readiness
 
 You made your app ready for real users.
@@ -91,7 +90,7 @@ Git Practices
 Used .gitignore
 Protected sensitive data
 
-👉 Skill gained: Deployment + DevOps basics
+ Skill gained: Deployment + DevOps basics
 ## 🛠️ Technical Stack
 *   **Frontend**: React (Vite), React Router, Axios, Lucide Icons
 *   **Backend**: Node.js, Express, MongoDB (Mongoose), JWT, Multer
